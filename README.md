@@ -7,6 +7,7 @@ Baseado na implementação oficial de **Proximal Curriculum with Task Correlatio
 - Origem: `9c7df278fb2520188d4dafb10f5888acec67bd4d`, preservado na branch `main` do fork e na tag local `upstream-ijcai2024` do pacote.
 - [Mudanças e protocolo](docs/REPRODUCTION.md)
 - [Validação executada](reports/SMOKE_STATUS.md)
+- [Protocolo completo de PointMass e suíte de 25 sementes](docs/FULL_POINTMASS.md)
 - [README original](docs/README-upstream.md)
 
 ## Instalação
@@ -41,7 +42,17 @@ uv pip install --python .venv/bin/python -r requirements-pointmass.txt
 
 Verificado em Linux/CPU. A execução no macOS ainda precisa ser verificada. O arquivo `requirements-pointmass-lock-linux.txt` registra as versões instaladas nesta sessão e não é um lock portátil entre sistemas. O requirements original foi preservado.
 
-## Teste curto
+## Reprodução com orçamento completo
+
+Para executar o ProCuRL-Target nas duas configurações de PointMass, com **25 sementes por configuração** e **dois milhões de passos por execução**:
+
+```bash
+.venv/bin/python run_pointmass_suite.py run --workers 2
+```
+
+São 50 treinos. Para começar com um treino completo em cada configuração, use `--seeds 0`. O executor salva logs, checkpoints, curvas e tabelas com média e erro padrão entre sementes. Veja o [protocolo completo](docs/FULL_POINTMASS.md). O padrão de `run_pointmass.py` também é o perfil `paper`. A conclusão das execuções e a comparação com as curvas publicadas precisam ser verificadas; o teste curto anterior não comprova reprodução de desempenho.
+
+## Teste curto opcional
 
 A partir da raiz do projeto:
 
@@ -80,6 +91,6 @@ Cada execução salva configuração efetiva, versões, hashes dos datasets, mé
 
 ## Origem e publicação
 
-O código herdado permanece atribuído aos autores. Não atribuimos uma licença nova ao código deles: o repositório consultado não apresenta licença explícita. A condição de redistribuição da versão modificada precisa ser esclarecida antes da publicação. O histórico original e `main.py` foram preservados.
+O código herdado permanece atribuído aos autores. Não atribuímos uma licença nova ao código deles: o repositório consultado não apresenta licença explícita. O histórico original e `main.py` foram preservados.
 
 O próximo passo científico é reproduzir o baseline com orçamento completo. Depois, a hipótese da IC deve entrar em alterações separadas e ser comparada sob o mesmo protocolo.

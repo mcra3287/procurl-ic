@@ -176,7 +176,7 @@ def parse_args():
         p.add_argument("--device", default="cpu")
         p.add_argument("--threads", type=int, default=1)
         if command == "train":
-            p.add_argument("--profile", choices=["smoke", "paper"], default="smoke")
+            p.add_argument("--profile", choices=["smoke", "paper"], default="paper")
             p.add_argument("--curriculum", choices=["proxcorl", "procurl-val", "iid", "target", "spdl", "plr", "currot"], default="proxcorl")
             p.add_argument("--output", required=True)
             p.add_argument("--total-timesteps", type=int)
