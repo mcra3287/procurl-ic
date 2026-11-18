@@ -1,0 +1,37 @@
+{
+  "mean_return": 0.0,
+  "std_return": 0.0,
+  "success_rate": 0.0,
+  "n_eval_episodes": 10,
+  "mean_episode_length": 100.0,
+  "returns": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "episode_lengths": [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+  ],
+  "evaluation_seed": 100420,
+  "deterministic_actions": false,
+  "actual_training_steps": 10240,
+  "elapsed_seconds": 13.507420780999837,
+  "profile": "smoke",
+  "paper_reproduction_completed": false
+}

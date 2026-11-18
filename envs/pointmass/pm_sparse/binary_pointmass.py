@@ -38,12 +38,16 @@ class BinaryContextualPointMass(gym.Env):
     def set_context(self, context):
         self.context = context
 
-    def reset(self):
+    def reset(self, *, seed=None, options=None):
+        super().reset(seed=seed)
+        if seed is not None:
+            # Preserve the upstream global NumPy RNG used by the dynamics.
+            np.random.seed(seed)
         self.state = np.array([0.0, 0.0, 3.0, 0.0])
         self.num_step = 0
         self.context_state = np.concatenate((self.state, self.context), axis=0)
         info = {}
-        return np.copy(self.context_state), info
+        return np.copy(self.context_state).astype(np.float32), info
 
     def _step_internal(self, state, action):
         action = np.clip(action, self.action_space.low, self.action_space.high)
@@ -108,12 +112,13 @@ class BinaryContextualPointMass(gym.Env):
         else:
             reward = 0
 
-        truncated = None # To be compatible with gymnasium
+        # Keep the upstream terminal/horizon semantics; use Gymnasium's bool API.
+        truncated = False
 
         return (
-            np.concatenate((new_state, self.context), axis=0),
-            reward,
-            done,
+            np.concatenate((new_state, self.context), axis=0).astype(np.float32),
+            float(reward),
+            bool(done),
             truncated,
             info,
         )

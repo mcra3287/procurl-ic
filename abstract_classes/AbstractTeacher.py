@@ -4,10 +4,6 @@ import numpy as np
 from tqdm import tqdm
 import wandb
 from scipy.optimize import minimize, NonlinearConstraint, Bounds
-from utils.currot_utils.wasserstein_interpolation import WassersteinInterpolation
-from utils.currot_utils.util import RewardEstimatorGP
-from utils.currot_utils.util import Buffer
-from utils.currot_utils.buffers import WassersteinSuccessBuffer
 
 
 class AbstractTeacherCallback(BaseCallback, ABC):
@@ -41,6 +37,11 @@ class AbstractTeacherCallback(BaseCallback, ABC):
 
         # For currot
         if self.cur == "currot":
+
+                # CURROT's solvers are optional for the other curricula.
+                from utils.currot_utils.wasserstein_interpolation import WassersteinInterpolation
+                from utils.currot_utils.util import RewardEstimatorGP, Buffer
+                from utils.currot_utils.buffers import WassersteinSuccessBuffer
 
                 self.threshold_reached = True
                 perf_lb = currot_perf_lb

@@ -1,0 +1,47 @@
+{
+  "created_at_utc": "2026-11-17T20:04:03.629115+00:00",
+  "upstream_repository": "https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl",
+  "upstream_commit": "9c7df278fb2520188d4dafb10f5888acec67bd4d",
+  "working_commit": "9c7df278fb2520188d4dafb10f5888acec67bd4d",
+  "working_tree_dirty": true,
+  "profile": "smoke",
+  "purpose": "execution check, not paper reproduction",
+  "curriculum": "proxcorl",
+  "target_type": "single-task",
+  "seed": 420,
+  "device": "cpu",
+  "threads": 1,
+  "python": "3.10.22",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "versions": {
+    "torch": "1.13.1+cpu",
+    "numpy": "1.26.2",
+    "scipy": "1.10.1",
+    "gymnasium": "0.29.1",
+    "stable-baselines3": "2.2.1"
+  },
+  "config": {
+    "total_timesteps": 10240,
+    "n_steps": 5120,
+    "batch_size": 128,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "beta": 130,
+    "eval_freq": 5120,
+    "eval_episodes_per_task": 10,
+    "deterministic_eval": false
+  },
+  "training_tasks": 20000,
+  "target_samples": 400,
+  "test_tasks": 1,
+  "dataset_sha256": {
+    "envs/pointmass/task_datasets/pm_train.csv": "02a35bb03ed8a9bb6454075b603f577fd786768d2f2619495b0709e3e87d53b1",
+    "envs/pointmass/task_datasets/pm_test_single_task.csv": "20f7938782866ec5e7b51e27b9fc402ec12d745ade0a4dfd78c119ec7a5535c0"
+  }
+}

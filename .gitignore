@@ -1,2 +1,11 @@
 *.DS_STORE
 .idea
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+results/
+models/
+runs/
+wandb/

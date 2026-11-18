@@ -182,7 +182,11 @@ class PointmassWrapper(AbstractCurriculumGymWrapper):
         self.num_steps += 1
         return x
 
-    def reset(self, seed=None):
+    def reset(self, *, seed=None, options=None):
+
+        if seed is not None:
+            np.random.seed(seed)
+            random.seed(seed)
 
         super(PointmassWrapper, self).select_next_task()
         self.num_steps = 0
@@ -244,7 +248,10 @@ class PointmassWrapperEval(AbstractCurriculumEvalGymWrapper):
         x = self.curr_task.step(action=action)
         return x
 
-    def reset(self, seed=None):
+    def reset(self, *, seed=None, options=None):
+        if seed is not None:
+            np.random.seed(seed)
+            self.curr_eval_id = -1
         next_id = self.pick_next_id()
         self.curr_task = self.collection_envs[next_id]
         return self.curr_task.reset()

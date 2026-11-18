@@ -1,0 +1,17 @@
+{
+  "total_timesteps": 2000000,
+  "n_steps": 5120,
+  "batch_size": 128,
+  "n_epochs": 10,
+  "learning_rate": 0.0003,
+  "gamma": 0.99,
+  "gae_lambda": 0.95,
+  "clip_range": 0.2,
+  "ent_coef": 0.01,
+  "vf_coef": 0.5,
+  "max_grad_norm": 0.5,
+  "beta": 130,
+  "eval_freq": 25000,
+  "eval_episodes_per_task": 100,
+  "deterministic_eval": false
+}
