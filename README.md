@@ -1,6 +1,6 @@
 # ProCuRL-Target — reprodução para a IC
 
-Baseado na implementação oficial de **Proximal Curriculum with Task Correlations for Deep Reinforcement Learning**, Tzannetos, Kamalaruban e Singla, IJCAI 2024. Esta etapa prepara a reprodução em Point Mass Sparse. **A contribuição da IC ainda não foi implementada.**
+Baseado na implementação oficial de **Proximal Curriculum with Task Correlations for Deep Reinforcement Learning**, Tzannetos, Kamalaruban e Singla, IJCAI 2024. Esta etapa prepara a reprodução em Point Mass Sparse.
 
 - [Artigo](https://www.ijcai.org/proceedings/2024/556)
 - [Repositório dos autores](https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl)
