@@ -4,12 +4,19 @@ Baseado na implementação oficial de **Proximal Curriculum with Task Correlatio
 
 - [Artigo](https://www.ijcai.org/proceedings/2024/556)
 - [Repositório dos autores](https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl)
-- Origem: `9c7df278fb2520188d4dafb10f5888acec67bd4d`, preservado na tag `upstream-ijcai2024`.
+- Origem: `9c7df278fb2520188d4dafb10f5888acec67bd4d`, preservado na branch `main` do fork e na tag local `upstream-ijcai2024` do pacote.
 - [Mudanças e protocolo](docs/REPRODUCTION.md)
 - [Validação executada](reports/SMOKE_STATUS.md)
 - [README original](docs/README-upstream.md)
 
 ## Instalação
+
+Clone a branch de reprodução:
+
+```bash
+git clone --branch reproduction-pointmass https://github.com/mcra3287/procurl-ic.git
+cd procurl-ic
+```
 
 Use Python **3.10**, como os autores. Com [uv](https://docs.astral.sh/uv/):
 

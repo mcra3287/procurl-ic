@@ -5,7 +5,7 @@
 Repositório: https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl
 
 Commit-base: `9c7df278fb2520188d4dafb10f5888acec67bd4d`.
-Tag: `upstream-ijcai2024`. Branch de trabalho: `reproduction-pointmass`.
+Referência original no GitHub: branch `main`. Tag local no pacote: `upstream-ijcai2024`. Branch de trabalho: `reproduction-pointmass`.
 
 Nenhuma contribuição de pesquisa nova está implementada. O ambiente, dados, cálculo do kernel, regra de seleção, professor e política são os dos autores, com os ajustes abaixo.
 
