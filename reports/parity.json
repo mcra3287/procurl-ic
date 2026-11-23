@@ -1,0 +1,18 @@
+[
+  {
+    "target": "single-task",
+    "seed": 7,
+    "tasks": 20000,
+    "target_samples": 400,
+    "max_abs_probability_error": 9.511381649732892e-10,
+    "total_variation_distance": 2.2261476391781745e-08
+  },
+  {
+    "target": "double-mode-gaussian",
+    "seed": 7,
+    "tasks": 20000,
+    "target_samples": 400,
+    "max_abs_probability_error": 2.165734914669204e-08,
+    "total_variation_distance": 1.4131825761675717e-07
+  }
+]

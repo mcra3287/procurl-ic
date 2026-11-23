@@ -65,6 +65,23 @@ class FullProtocolTests(unittest.TestCase):
         np.testing.assert_allclose(table["mean_return"], 0.5)
         np.testing.assert_allclose(table["sem_across_training_seeds"], 0.5)
         self.assertTrue((Path(self.temp.name) / "single-task.png").is_file())
+        comparison = np.genfromtxt(Path(self.temp.name) / "single-task-proxcorl-vs-paper.csv",
+                                   delimiter=",", names=True)
+        self.assertEqual(comparison["steps"][0], 50000)
+        self.assertEqual(comparison["steps"][-1], 2000000)
+        self.assertAlmostEqual(comparison["paper_mean_digitized"][-1], 0.888)
+        self.assertAlmostEqual(comparison["ours_minus_paper"][-1], 0.5 - 0.888)
+
+    def test_invalid_episode_returns_and_test_pool_are_rejected(self):
+        job = self.make_run(0, 0.2)
+        self.assertFalse(completed(job))
+        path = Path(job["output"])
+        meta = json.loads((path / "config.json").read_text())
+        meta["test_tasks"] = 2
+        (path / "config.json").write_text(json.dumps(meta))
+        np.savez(path / "evaluations.npz", timesteps=np.arange(25000, 2000001, 25000),
+                 results=np.zeros((80, 200)))
+        self.assertFalse(completed(job))
 
     def test_different_implementations_are_not_silently_pooled(self):
         self.make_run(0, 0.0)

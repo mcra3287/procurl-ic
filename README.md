@@ -7,6 +7,10 @@ Reimplementação do **professor que escolhe tarefas** no PointMass do artigo de
 - [Curvas da Figura 2 e método de extração](reference/README.md)
 - [Artigo](https://ijcai.org/proceedings/2024/0556.pdf) · [Versão com apêndices](https://arxiv.org/abs/2405.02481) · [Código dos autores](https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl)
 
+## Resultado medido
+
+Na última janela da curva, aos dois milhões de passos, a IC teve **69,8% de sucesso em PM-S:1T** (cinco sementes) e **64,1% em PM-S:2G** (três). Na Figura 2, as médias dos autores foram aproximadamente **88,8%** e **95,8%**, respectivamente, com 25 sementes por cenário. Uma semente em cada cenário terminou com zero sucesso. Na comparação controlada em PM-S:1T, semente 0, os dois professores produziram retornos idênticos nas 80 avaliações periódicas. Os [gráficos, resultados individuais e checkpoints](reports/COMPARACAO.md) permitem examinar a diferença.
+
 ## Instalação
 
 No terminal do Ubuntu ou do macOS, com Git e [uv](https://docs.astral.sh/uv/) disponíveis:
