@@ -1,7 +1,7 @@
 """Run full-budget ProCuRL experiments; aggregate independent training seeds.
 
 The default protocol is ProCuRL-Target, two PointMass settings, 25 seeds each.
-This executes the authors' implementation through run_pointmass.py. It does
+This defaults to our PointMass teacher, with the authors' teacher as a control. It does
 not implement a new curriculum or assert agreement with the published curves.
 """
 import argparse
@@ -16,7 +16,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent
 TARGETS = ("single-task", "double-mode-gaussian")
-METHODS = ("proxcorl", "procurl-val", "iid", "target")
+METHODS = ("proxcorl-ic", "proxcorl", "procurl-val", "iid", "target")
 
 
 def jobs_for(args):
@@ -149,7 +149,7 @@ def main():
     parser.add_argument("--output", default="results/pointmass-full")
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(25)))
     parser.add_argument("--targets", nargs="+", choices=TARGETS, default=list(TARGETS))
-    parser.add_argument("--curricula", nargs="+", choices=METHODS, default=["proxcorl"])
+    parser.add_argument("--curricula", nargs="+", choices=METHODS, default=["proxcorl-ic"])
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--device", default="cpu")
