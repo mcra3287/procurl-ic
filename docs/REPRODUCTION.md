@@ -1,5 +1,7 @@
 # Reprodução: mudanças e limites
 
+> Registro histórico da primeira adaptação. A implementação da IC e a comparação com a Figura 2 estão nas [diferenças atuais](DIFERENCAS.md).
+
 ## Origem
 
 Repositório: https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl

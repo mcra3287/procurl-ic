@@ -1,4 +1,4 @@
-"""Reproduction entry point using the upstream environment, teacher and policy.
+"""PointMass training with either the independently written or upstream teacher.
 
 No proposed research modification is implemented here. The complete training
 pool and all 400 target samples are retained even in the short smoke profile.
@@ -24,6 +24,7 @@ from stable_baselines3.common.utils import set_random_seed
 
 from envs.pointmass.PointMassWrapper import PointmassWrapper, PointmassWrapperEval
 from envs.pointmass.PointMassTeacher import PointMassTeacher
+from pointmass_ic import ICPointMass, ICTeacher
 from utils.custom_mlp.custom_actor_critic import CustomActorCriticPolicy
 
 ROOT = Path(__file__).resolve().parent
@@ -94,12 +95,15 @@ def train(args):
     torch.set_num_threads(args.threads)
     set_random_seed(args.seed)
     started = time.perf_counter()
-    train_env = PointmassWrapper(
-        cur=args.curriculum, env_type="binary", beta=config["beta"],
+    is_ic = args.curriculum == "proxcorl-ic"
+    env_class = ICPointMass if is_ic else PointmassWrapper
+    train_env = env_class(
+        cur="proxcorl" if is_ic else args.curriculum, env_type="binary", beta=config["beta"],
         target_type=args.target_type, metrics=False, beta_plr=0.1, rho_plr=0.5,
     )
     eval_env = PointmassWrapperEval(env_type="binary", target_type=args.target_type)
-    teacher = make_teacher(train_env, config, args.curriculum)
+    teacher = (ICTeacher(train_env, config["n_steps"]) if is_ic
+               else make_teacher(train_env, config, args.curriculum))
     wrapped_train = Monitor(train_env, str(output / "train.monitor.csv"))
     wrapped_eval = Monitor(eval_env, str(output / "eval.monitor.csv"))
     ppo_keys = ("n_steps", "batch_size", "n_epochs", "learning_rate", "gamma",
@@ -177,7 +181,7 @@ def parse_args():
         p.add_argument("--threads", type=int, default=1)
         if command == "train":
             p.add_argument("--profile", choices=["smoke", "paper"], default="paper")
-            p.add_argument("--curriculum", choices=["proxcorl", "procurl-val", "iid", "target", "spdl", "plr", "currot"], default="proxcorl")
+            p.add_argument("--curriculum", choices=["proxcorl-ic", "proxcorl", "procurl-val", "iid", "target", "spdl", "plr", "currot"], default="proxcorl-ic")
             p.add_argument("--output", required=True)
             p.add_argument("--total-timesteps", type=int)
             p.add_argument("--eval-freq", type=int)
