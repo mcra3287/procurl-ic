@@ -1,0 +1,7 @@
+# Referência numérica da Figura 2
+
+O CSV contém a curva central e os limites da faixa de um erro padrão do ProCuRL-Target nos painéis (a) e (b) da Figura 2, página 5033 dos anais. Fonte: [PDF da IJCAI](https://ijcai.org/proceedings/2024/0556.pdf), SHA-256 `7d6f18949dc883a7f624456932014e1658b224d58752ee354a84c2bf5a847429`.
+
+Extraímos os vértices vetoriais da linha azul e do polígono azul de cada painel. Calibramos os eixos pelas marcas de 0 e 2 milhões de passos e de 0 e 1 de retorno. Conferimos os 80 pontos de cada painel contra a grade de 25.000 passos. Os números são leituras da figura, arredondadas a cinco casas para o CSV. As cinco casas vêm da geometria do PDF e não expressam precisão estatística. Pequenas assimetrias entre linha e faixa vêm do traçado publicado.
+
+O artigo informa média sobre 25 sementes, faixa de ±1 erro padrão e suavização em duas avaliações. Para as nossas curvas, fazemos a média móvel da avaliação atual com a anterior em cada semente, e só então calculamos a média e o erro padrão entre sementes. A primeira comparação com duas avaliações ocorre aos 50 mil passos. A convenção exata de alinhamento da janela e o código de plotagem dos autores não estão disponíveis no repositório consultado. O arquivo `*-vs-paper.csv` contém a diferença assinada (IC menos artigo) em cada passo comum. Sobreposição de faixas é descritiva, e as sementes individuais dos autores não estão disponíveis para um teste pareado.

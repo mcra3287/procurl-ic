@@ -7,6 +7,8 @@ not implement a new curriculum or assert agreement with the published curves.
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
+from functools import lru_cache
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -17,6 +19,24 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent
 TARGETS = ("single-task", "double-mode-gaussian")
 METHODS = ("proxcorl-ic", "proxcorl", "procurl-val", "iid", "target")
+
+
+@lru_cache(maxsize=None)
+def training_code(commit):
+    # The local execution commit and the published commit have the same Git tree.
+    if commit == "b27578b4c6b5a717e069b290a658874a2bbde446":
+        commit = "1a8abfe073a2ce0b6392295d32c0a8795ecc980e"
+    if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
+        return commit
+    # Hash the versioned inputs used by training. Editing a report or plotting
+    # script does not change the trainer. A shallow clone may lack the commit.
+    inputs = ["run_pointmass.py", "pointmass_ic.py", "abstract_classes", "envs/pointmass",
+              "utils", "configs/pointmass-paper.json", "requirements-pointmass.txt"]
+    result = subprocess.run(["git", "ls-tree", "-rz", commit, "--", *inputs],
+                            cwd=ROOT, capture_output=True)
+    if result.returncode or not result.stdout:
+        return commit
+    return hashlib.sha256(result.stdout).hexdigest()
 
 
 def jobs_for(args):
@@ -40,14 +60,16 @@ def completed(job):
         with np.load(path / "evaluations.npz") as curve:
             steps, returns = curve["timesteps"], curve["results"]
             correct_grid = np.array_equal(steps, np.arange(25000, 2000001, 25000))
-            correct_shape = returns.shape == (80, expected["eval_episodes_per_task"] * meta["test_tasks"])
+            n_tasks = 1 if job["target_type"] == "single-task" else 100
+            correct_shape = returns.shape == (80, expected["eval_episodes_per_task"] * n_tasks)
+            binary_returns = np.all((returns == 0) | (returns == 1))
         return bool(
             meta["profile"] == "paper" and meta["config"] == expected
             and all(meta[k] == job[k] for k in ("target_type", "curriculum", "seed"))
             and meta["training_tasks"] == 20000 and meta["target_samples"] == 400
             and 2000000 <= metrics["actual_training_steps"] < 2005120
             and (path / "final_model.zip").is_file()
-            and correct_grid and correct_shape
+            and meta["test_tasks"] == n_tasks and correct_grid and correct_shape and binary_returns
         )
     except (OSError, ValueError, KeyError):
         return False
@@ -86,6 +108,9 @@ def aggregate(args):
                "meaning": "Execution status, not a claim of matching the paper or a new contribution."}
     for target in args.targets:
         fig, ax = plt.subplots(figsize=(8, 4.5))
+        reference = np.genfromtxt(ROOT / "reference/figure2-pointmass.csv", names=True,
+                                  delimiter=",", dtype=None, encoding="utf-8")
+        reference = reference[reference["target_type"] == target]
         plotted = False
         for method in args.curricula:
             candidates = [j for j in jobs_for(args) if j["target_type"] == target and j["curriculum"] == method]
@@ -103,7 +128,12 @@ def aggregate(args):
                 folder = Path(job["output"])
                 meta = json.loads((folder / "config.json").read_text())
                 # Refuse to silently combine distinct software or datasets.
-                fingerprints.add(json.dumps({k: meta[k] for k in ("working_commit", "working_tree_dirty", "versions", "dataset_sha256", "config")}, sort_keys=True))
+                identity = {k: meta[k] for k in ("working_tree_dirty", "versions", "dataset_sha256", "config")}
+                identity.update(python=meta.get("python"), device=meta.get("device"),
+                                threads=meta.get("threads"), platform=meta.get("platform"))
+                original = meta["working_commit"]
+                identity["code"] = original if meta["working_tree_dirty"] else training_code(original)
+                fingerprints.add(json.dumps(identity, sort_keys=True))
                 with np.load(folder / "evaluations.npz") as data:
                     steps = data["timesteps"]
                     arrays.append(data["results"].mean(axis=1))
@@ -122,6 +152,18 @@ def aggregate(args):
                     writer.writerow(["training_steps", "mean_return", "sem_across_training_seeds", "n_seeds"])
                     writer.writerows(zip(x, mean, sem, np.repeat(len(valid), len(x))))
                 if label == "smooth2":
+                    if method in ("proxcorl", "proxcorl-ic"):
+                        ref = reference[np.isin(reference["training_steps"], x)]
+                        np.testing.assert_array_equal(ref["training_steps"], x)
+                        delta = mean - ref["paper_mean"]
+                        path = root / f"{target}-{method}-vs-paper.csv"
+                        with path.open("w", newline="") as stream:
+                            writer = csv.writer(stream)
+                            writer.writerow(["steps", "our_mean", "our_sem", "paper_mean_digitized",
+                                             "paper_minus_sem", "paper_plus_sem", "ours_minus_paper", "n_seeds"])
+                            writer.writerows(zip(x, mean, sem, ref["paper_mean"], ref["paper_minus_sem"],
+                                                 ref["paper_plus_sem"], delta, np.repeat(len(valid), len(x))))
+                        item["delta_at_2M_vs_paper_curve"] = float(delta[-1])
                     ax.plot(x, mean, label=f"{method} (n={len(valid)})")
                     if len(valid) > 1:
                         ax.fill_between(x, mean - sem, mean + sem, alpha=0.2)
@@ -129,6 +171,11 @@ def aggregate(args):
             item["sem_final_checkpoint_return"] = float(np.std(final_returns, ddof=1) / np.sqrt(len(valid))) if len(valid) > 1 else None
             plotted = True
         if plotted:
+            if any(m in ("proxcorl", "proxcorl-ic") for m in args.curricula):
+                ax.plot(reference["training_steps"], reference["paper_mean"], ls="--", color="#353535",
+                        label="ProCuRL-Target · IJCAI 2024 (n=25)")
+                ax.fill_between(reference["training_steps"], reference["paper_minus_sem"],
+                                reference["paper_plus_sem"], color="gray", alpha=0.16)
             ax.set(xlabel="Interações de treino", ylabel="Retorno médio no conjunto-alvo",
                    title=f"PointMass {target} — média ± 1 erro padrão", ylim=(-0.02, 1.02))
             ax.legend()

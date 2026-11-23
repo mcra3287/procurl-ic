@@ -1,96 +1,66 @@
-# ProCuRL-Target — reprodução para a IC
+# ProCuRL-Target no PointMass · reprodução da IC
 
-Baseado na implementação oficial de **Proximal Curriculum with Task Correlations for Deep Reinforcement Learning**, Tzannetos, Kamalaruban e Singla, IJCAI 2024. Esta etapa prepara a reprodução em Point Mass Sparse.
+Reimplementação do **professor que escolhe tarefas** no PointMass do artigo de Tzannetos, Kamalaruban e Singla (IJCAI 2024). O professor da IC e o dos autores podem treinar o mesmo agente PPO, sobre a mesma física e os mesmos conjuntos de tarefas. Na versão da IC, o primeiro arquivo a ler é [pointmass_ic.py](pointmass_ic.py).
 
-- [Artigo](https://www.ijcai.org/proceedings/2024/556)
-- [Repositório dos autores](https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl)
-- Origem: `9c7df278fb2520188d4dafb10f5888acec67bd4d`, preservado na branch `main` do fork e na tag local `upstream-ijcai2024` do pacote.
-- [Mudanças e protocolo](docs/REPRODUCTION.md)
-- [Validação executada](reports/SMOKE_STATUS.md)
-- [Protocolo completo de PointMass e suíte de 25 sementes](docs/FULL_POINTMASS.md)
-- [README original](docs/README-upstream.md)
+- [Resultados e comparação com o artigo](reports/COMPARACAO.md)
+- [Diferenças em relação ao original e motivo de cada mudança](docs/DIFERENCAS.md)
+- [Curvas da Figura 2 e método de extração](reference/README.md)
+- [Artigo](https://ijcai.org/proceedings/2024/0556.pdf) · [Versão com apêndices](https://arxiv.org/abs/2405.02481) · [Código dos autores](https://github.com/machine-teaching-group/ijcai2024-proximal-curriculum-target-rl)
 
 ## Instalação
 
-Clone a branch de reprodução:
+No terminal do Ubuntu ou do macOS, com Git e [uv](https://docs.astral.sh/uv/) disponíveis:
 
 ```bash
-git clone --branch reproduction-pointmass https://github.com/mcra3287/procurl-ic.git
+git clone --branch ic/pointmass-curriculo https://github.com/mcra3287/procurl-ic.git
 cd procurl-ic
-```
-
-Use Python **3.10**, como os autores. Com [uv](https://docs.astral.sh/uv/):
-
-```bash
 uv python install 3.10
 uv venv --python 3.10
 ```
 
-No Linux, instale primeiro PyTorch CPU para evitar dependências CUDA:
+No Linux, instale primeiro o PyTorch para CPU:
 
 ```bash
-uv pip install --python .venv/bin/python 'torch==1.13.1+cpu' \
-  --index-url https://download.pytorch.org/whl/cpu \
-  --extra-index-url https://pypi.org/simple --index-strategy unsafe-best-match
+uv pip install --python .venv/bin/python 'torch==1.13.1+cpu' --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple --index-strategy unsafe-best-match
 ```
 
-Depois, tanto no Linux quanto no macOS:
+Em ambos os sistemas, instale as dependências e execute os testes:
 
 ```bash
 uv pip install --python .venv/bin/python -r requirements-pointmass.txt
-```
-
-Verificado em Linux/CPU. A execução no macOS ainda precisa ser verificada. O arquivo `requirements-pointmass-lock-linux.txt` registra as versões instaladas nesta sessão e não é um lock portátil entre sistemas. O requirements original foi preservado.
-
-## Reprodução com orçamento completo
-
-Para executar o ProCuRL-Target nas duas configurações de PointMass, com **25 sementes por configuração** e **dois milhões de passos por execução**:
-
-```bash
-.venv/bin/python run_pointmass_suite.py run --workers 2
-```
-
-São 50 treinos. Para começar com um treino completo em cada configuração, use `--seeds 0`. O executor salva logs, checkpoints, curvas e tabelas com média e erro padrão entre sementes. Veja o [protocolo completo](docs/FULL_POINTMASS.md). O padrão de `run_pointmass.py` também é o perfil `paper`. A conclusão das execuções e a comparação com as curvas publicadas precisam ser verificadas; o teste curto anterior não comprova reprodução de desempenho.
-
-## Teste curto opcional
-
-A partir da raiz do projeto:
-
-```bash
 .venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python run_pointmass.py train --profile smoke \
-  --curriculum proxcorl --target-type single-task --seed 420 \
-  --output results/smoke-proxcorl-420
 ```
 
-O perfil smoke executa **10.240 passos**, duas atualizações PPO, mantendo **20 mil tarefas de treino** e **400 amostras-alvo**. Valida execução; não reproduz as curvas do artigo. A pasta de saída deve ser nova para evitar sobrescrita de resultados.
+Validado em Linux/CPU. O comando para macOS usa o pacote de PyTorch da plataforma e ainda precisa de validação em um Mac.
 
-No código original, `proxcorl` corresponde ao **ProCuRL-Target** e `procurl-val` à variante sem os termos relacionados ao alvo.
+## Treino e comparação
 
-## Tentativa de reprodução completa
+Uma semente, orçamento completo (2 milhões de passos), alvo único:
 
 ```bash
-.venv/bin/python run_pointmass.py train --profile paper \
-  --curriculum proxcorl --target-type single-task --seed 0 \
-  --output results/paper-pms1t-proxcorl-seed0 --tensorboard
+.venv/bin/python run_pointmass_suite.py run --targets single-task --curricula proxcorl-ic --seeds 0
 ```
 
-São dois milhões de passos, com os parâmetros de `configs/pointmass-paper.json`. Para PM-S:2G, use `--target-type double-mode-gaussian`. O artigo utiliza 25 seeds em cada configuração de PointMass: uma única execução não reproduz sua média. O perfil completo ainda não foi executado nesta etapa.
-
-A mesma entrada aceita `iid`, `target`, `procurl-val`, `spdl` e `plr`. Esses concorrentes ainda precisam ser validados individualmente. `currot` exige as dependências adicionais do projeto original.
-
-## Recarregar e avaliar
+A suíte também agrega e compara os resultados quando o treino termina. Para comparar professor da IC e professor dos autores na mesma configuração, inclua ambos em `--curricula proxcorl-ic proxcorl`. Para os dois painéis do artigo com 25 sementes **por painel**, execute:
 
 ```bash
-.venv/bin/python run_pointmass.py evaluate \
-  --checkpoint results/smoke-proxcorl-420/final_model.zip \
-  --target-type single-task --seed 100420 --episodes-per-task 10
+.venv/bin/python run_pointmass_suite.py run --curricula proxcorl-ic --workers 2
 ```
 
-Cada execução salva configuração efetiva, versões, hashes dos datasets, métricas, avaliações periódicas, monitores, melhor checkpoint e modelo final. Os resultados ficam fora do Git.
+O último comando agenda 50 treinos independentes com 100 milhões de interações de treino solicitadas mais as avaliações. Ele pula as execuções completas já existentes na pasta de saída. Uma saída parcial é preservada e sinalizada. O número de workers afeta a concorrência e o uso de RAM.
 
-## Origem e publicação
+Para regerar a comparação dos treinos locais completos:
 
-O código herdado permanece atribuído aos autores. Não atribuímos uma licença nova ao código deles: o repositório consultado não apresenta licença explícita. O histórico original e `main.py` foram preservados.
+```bash
+.venv/bin/python run_pointmass_suite.py aggregate --curricula proxcorl-ic
+```
 
-O próximo passo científico é reproduzir o baseline com orçamento completo. Depois, a hipótese da IC deve entrar em alterações separadas e ser comparada sob o mesmo protocolo.
+Os resultados locais ficam em `results/pointmass-full`. Abra o PNG da configuração para ver a curva da IC sobreposta à publicada. No CSV terminado em `-vs-paper.csv`, a coluna `ours_minus_paper` mede a diferença em retorno no mesmo passo. Um valor de −0,10 corresponde a dez pontos percentuais a menos de sucesso neste ambiente de recompensa binária.
+
+Para conferir a instalação em dois rollouts antes de iniciar uma bateria longa:
+
+```bash
+.venv/bin/python run_pointmass.py train --profile smoke --curriculum proxcorl-ic --output results/smoke-ic
+```
+
+O ambiente, a política e o código original mantêm a atribuição aos autores. A branch `main` do fork guarda o original e `reproduction-pointmass` guarda a adaptação anterior. A hipótese de pesquisa com novos sinais para o currículo pode ser medida posteriormente usando esta reprodução como controle.

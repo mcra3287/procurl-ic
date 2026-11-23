@@ -1,5 +1,7 @@
 # Reprodução do ProCuRL-Target no PointMass
 
+> Esta página registra a suíte da branch anterior `reproduction-pointmass`. Na branch atual o padrão é o professor `proxcorl-ic`. Use o [README atual](../README.md) e os [resultados medidos](../reports/COMPARACAO.md).
+
 Este protocolo executa a implementação oficial com orçamento completo. A preparação do código não significa que os resultados publicados já foram reproduzidos. A contribuição nova da IC continua fora desta etapa.
 
 ## Escopo
